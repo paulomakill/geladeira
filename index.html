@@ -29,7 +29,7 @@
                 <div class="p-2 bg-blue-800/80 rounded-xl border border-white/10">
                     <i data-lucide="heart-handshake" class="w-6 h-6 text-blue-300"></i>
                 </div>
-                <h1 id="public-header-title" class="text-xl font-bold tracking-tight">Compra da Geladeira</h1>
+                <h1 id="public-header-title" class="text-xl font-bold tracking-tight">Vaquinha Digital</h1>
             </div>
             <button onclick="showLoginScreen()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm rounded-lg shadow-lg transition flex items-center gap-2 border border-blue-400/30 cursor-pointer">
                 <i data-lucide="log-in" class="w-4 h-4"></i> Área Restrita (Login)
@@ -40,7 +40,7 @@
             <div class="text-center space-y-3">
                 <span class="px-3 py-1 bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs font-semibold uppercase tracking-wider rounded-full">Painel Público de Transparência</span>
                 <h2 id="public-main-title" class="text-3xl sm:text-4xl font-extrabold text-white">Compra da Geladeira</h2>
-                <p class="text-slate-300 max-w-lg mx-auto text-sm sm:text-base">Fazer o bem sem olhar a quem</p>
+                <p id="public-subtitle" class="text-slate-300 max-w-lg mx-auto text-sm sm:text-base">Fazer o bem sem olhar a quem</p>
             </div>
 
             <!-- Progress Card -->
@@ -127,18 +127,18 @@
 
             <div class="text-center mb-6">
                 <div class="inline-flex p-4 rounded-full bg-blue-100 text-blue-600 mb-3"><i data-lucide="lock" class="w-8 h-8"></i></div>
-                <h1 id="login-app-name" class="text-2xl font-bold text-slate-800">Compra da Geladeira</h1>
+                <h1 id="login-app-name" class="text-2xl font-bold text-slate-800">Vaquinha Digital</h1>
                 <p class="text-sm text-slate-500 mt-1">Acesso Restrito para Gestão</p>
             </div>
 
             <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Usuário</label>
-                    <input type="text" id="login-user" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="admin">
+                    <input type="text" id="login-user" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ex: admin ou teste">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Senha</label>
-                    <input type="password" id="login-pass" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="1234">
+                    <input type="password" id="login-pass" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Sua senha">
                 </div>
                 <div id="login-error" class="text-red-500 text-xs text-center hidden font-medium">Usuário ou senha incorretos!</div>
                 <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
@@ -155,8 +155,8 @@
                 <div class="flex items-center gap-3">
                     <div class="p-2 bg-blue-800 rounded-lg"><i data-lucide="heart-handshake" class="w-6 h-6 text-blue-200"></i></div>
                     <div>
-                        <h1 id="app-header-title" class="font-bold text-lg leading-tight">Compra da Geladeira</h1>
-                        <p class="text-xs text-blue-200" id="user-role-badge">Conectado como Admin</p>
+                        <h1 id="app-header-title" class="font-bold text-lg leading-tight">Vaquinha Digital</h1>
+                        <p class="text-xs text-blue-200" id="user-role-badge">Conectado</p>
                     </div>
                 </div>
 
@@ -164,13 +164,14 @@
                     <button onclick="showPublicScreen()" class="px-3 py-1.5 bg-blue-800 hover:bg-blue-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5 cursor-pointer">
                         <i data-lucide="eye" class="w-4 h-4"></i> Ver Tela Pública
                     </button>
-                    <button onclick="openAuthModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5 cursor-pointer">
-                        <i data-lucide="key-round" class="w-4 h-4"></i> Alterar Senha / Acesso
+                    <!-- Botões de gestão (Admin) -->
+                    <button id="btn-auth-menu" onclick="openAuthModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="users" class="w-4 h-4"></i> Usuários e Senhas
                     </button>
-                    <button onclick="openFirebaseConfigModal()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5 cursor-pointer">
+                    <button id="btn-fb-menu" onclick="openFirebaseConfigModal()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5 cursor-pointer">
                         <i data-lucide="database" class="w-4 h-4"></i> Configurar Firebase
                     </button>
-                    <button onclick="openSettingsModal()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5 cursor-pointer">
+                    <button id="btn-settings-menu" onclick="openSettingsModal()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5 cursor-pointer">
                         <i data-lucide="settings" class="w-4 h-4"></i> Configurações / PIX
                     </button>
                     <button onclick="handleLogout()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5 cursor-pointer">
@@ -224,12 +225,12 @@
                 </div>
 
                 <div class="flex items-center gap-2 flex-wrap">
-                    <label class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-lg shadow-sm transition flex items-center gap-2 cursor-pointer">
+                    <label id="btn-import-excel" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-lg shadow-sm transition flex items-center gap-2 cursor-pointer">
                         <i data-lucide="upload" class="w-4 h-4"></i> Importar Excel (.xlsx)
                         <input type="file" id="excel-file-input" accept=".xlsx, .xls" class="hidden" onchange="importExcelToFirebase(event)">
                     </label>
 
-                    <button onclick="exportExcel()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg shadow-sm transition flex items-center gap-2 cursor-pointer">
+                    <button id="btn-export-excel" onclick="exportExcel()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg shadow-sm transition flex items-center gap-2 cursor-pointer">
                         <i data-lucide="download" class="w-4 h-4"></i> Baixar Relatório Excel
                     </button>
                     <button onclick="openAddModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-sm transition flex items-center gap-2 cursor-pointer">
@@ -248,7 +249,7 @@
                                 <th class="py-3 px-4">Nome do Contribuinte</th>
                                 <th class="py-3 px-4 text-right">Valor (R$)</th>
                                 <th class="py-3 px-4 text-center">Cadastrado por</th>
-                                <th class="py-3 px-4 w-28 text-center">Ações</th>
+                                <th id="th-actions" class="py-3 px-4 w-28 text-center">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="contributions-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
@@ -258,33 +259,69 @@
         </main>
     </div>
 
-    <!-- MODAL: ALTERAR SENHA E ACESSO -->
+    <!-- MODAL: GERENCIAR USUÁRIOS E SENHAS -->
     <div id="modal-auth" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="font-bold text-slate-800 text-lg">Alterar Dados de Acesso (Login)</h3>
+                <h3 class="font-bold text-slate-800 text-lg">Gerenciar Usuários e Senhas</h3>
                 <button onclick="closeModal('modal-auth')" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
-            <form onsubmit="saveAuthCredentials(event)" class="space-y-4">
+            <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-600">
+                    <strong>Admin:</strong> Adiciona, edita, apaga doações, gerencia PIX e usuários.<br>
+                    <strong>User:</strong> Apenas adiciona novos doadores e valores.
+                </div>
+
+                <!-- Formulário para Adicionar/Editar Usuário -->
+                <form id="form-user-manage" onsubmit="saveUserAccount(event)" class="bg-blue-50/50 p-4 rounded-xl border border-blue-100 space-y-3">
+                    <h4 class="font-bold text-sm text-blue-900" id="user-form-title">Adicionar Novo Usuário</h4>
+                    <input type="hidden" id="edit-username-key">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Usuário</label>
+                            <input type="text" id="manage-user" required class="w-full px-3 py-2 bg-white border rounded-lg text-sm outline-none" placeholder="Ex: teste">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Senha</label>
+                            <input type="text" id="manage-pass" required class="w-full px-3 py-2 bg-white border rounded-lg text-sm outline-none" placeholder="Senha">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Função</label>
+                            <select id="manage-role" class="w-full px-3 py-2 bg-white border rounded-lg text-sm outline-none cursor-pointer">
+                                <option value="user">user</option>
+                                <option value="admin">admin</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2 pt-1">
+                        <button type="button" onclick="resetUserForm()" class="px-3 py-1.5 text-xs text-slate-600 bg-white border rounded-lg hover:bg-slate-100 cursor-pointer">Limpar</button>
+                        <button type="submit" class="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg cursor-pointer">Salvar Usuário</button>
+                    </div>
+                </form>
+
+                <!-- Tabela de Usuários Cadastrados -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Novo Nome de Usuário</label>
-                    <input type="text" id="auth-username" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Ex: admin">
+                    <h4 class="font-bold text-sm text-slate-700 mb-2">Usuários Cadastrados no Sistema</h4>
+                    <div class="border rounded-xl overflow-hidden">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 border-b text-xs text-slate-500 uppercase">
+                                <tr>
+                                    <th class="py-2 px-3">Usuário</th>
+                                    <th class="py-2 px-3">Senha</th>
+                                    <th class="py-2 px-3">Função</th>
+                                    <th class="py-2 px-3 text-center w-20">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body" class="divide-y"></tbody>
+                        </table>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Nova Senha</label>
-                    <input type="password" id="auth-newpass" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Digite a nova senha">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Confirmar Nova Senha</label>
-                    <input type="password" id="auth-confirmpass" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Repita a nova senha">
-                </div>
-                <div id="auth-error" class="text-red-500 text-xs hidden font-medium">As senhas não coincidem!</div>
-                <div class="flex justify-end gap-2 pt-2 border-t">
-                    <button type="button" onclick="closeModal('modal-auth')" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg cursor-pointer">Salvar Credenciais</button>
-                </div>
-            </form>
+            </div>
+
+            <div class="flex justify-end pt-2 border-t">
+                <button type="button" onclick="closeModal('modal-auth')" class="px-4 py-2 text-sm bg-slate-200 hover:bg-slate-300 rounded-lg cursor-pointer font-medium">Fechar</button>
+            </div>
         </div>
     </div>
 
@@ -297,7 +334,6 @@
             </div>
             
             <form onsubmit="saveFirebaseConfig(event)" class="space-y-3">
-                <p class="text-xs text-slate-500">Altere ou visualize abaixo as credenciais fornecidas pelo Firebase:</p>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">API Key</label>
                     <input type="text" id="fb-apikey" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none">
@@ -330,18 +366,26 @@
         </div>
     </div>
 
-    <!-- MODAL: CONFIGURAÇÕES DA CAMPANHA -->
+    <!-- MODAL: CONFIGURAÇÕES DA CAMPANHA (TÍTULOS E PIX) -->
     <div id="modal-settings" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
         <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="font-bold text-slate-800 text-lg">Configurações e Dados do PIX</h3>
+                <h3 class="font-bold text-slate-800 text-lg">Configurações e Textos da Campanha</h3>
                 <button onclick="closeModal('modal-settings')" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
-            <form id="form-settings" onsubmit="saveCampaignSettings(event)" class="space-y-4">
+            <form id="form-settings" onsubmit="saveCampaignSettings(event)" class="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Nome da Campanha</label>
-                    <input type="text" id="setting-title" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none">
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Título do Topo (Esquerdo)</label>
+                    <input type="text" id="setting-nav-title" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Ex: Vaquinha Digital">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Título Principal da Campanha</label>
+                    <input type="text" id="setting-title" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Ex: Compra da Geladeira">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Subtítulo / Descrição</label>
+                    <input type="text" id="setting-subtitle" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Ex: Fazer o bem sem olhar a quem">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Meta Desejada (R$)</label>
@@ -408,13 +452,19 @@
 
         let contributions = [];
         let config = {
+            navTitle: "Vaquinha Digital",
             title: "Compra da Geladeira",
+            subtitle: "Fazer o bem sem olhar a quem",
             goal: 1500.00,
             pixReceiver: "Dona Fátima / Lúcia",
             pixKey: "(75) 99999-9999",
-            adminUser: "admin",
-            adminPass: "1234"
+            users: {
+                "admin": { pass: "1234", role: "admin" },
+                "teste": { pass: "teste", role: "user" }
+            }
         };
+
+        let currentUser = null;
 
         lucide.createIcons();
 
@@ -431,11 +481,19 @@
             if (doc.exists) {
                 const data = doc.data();
                 config = { ...config, ...data };
+                // Garante fallback caso o Firestore não traga o objeto users
+                if (!config.users || typeof config.users !== 'object') {
+                    config.users = {
+                        "admin": { pass: "1234", role: "admin" },
+                        "teste": { pass: "teste", role: "user" }
+                    };
+                }
                 updateUI();
             }
         });
 
         function openFirebaseConfigModal() {
+            if (!currentUser || currentUser.role !== 'admin') return;
             document.getElementById("fb-apikey").value = activeFbConfig.apiKey || "";
             document.getElementById("fb-authdomain").value = activeFbConfig.authDomain || "";
             document.getElementById("fb-projectid").value = activeFbConfig.projectId || "";
@@ -462,39 +520,95 @@
             location.reload();
         }
 
-        // Funções da aba de Alteração de Senha / Usuário
         function openAuthModal() {
-            document.getElementById("auth-username").value = config.adminUser || "admin";
-            document.getElementById("auth-newpass").value = "";
-            document.getElementById("auth-confirmpass").value = "";
-            document.getElementById("auth-error").classList.add("hidden");
+            if (!currentUser || currentUser.role !== 'admin') return;
+            resetUserForm();
+            renderUsersTable();
             document.getElementById("modal-auth").classList.remove("hidden");
         }
 
-        async function saveAuthCredentials(e) {
-            e.preventDefault();
-            const newUsername = document.getElementById("auth-username").value.trim();
-            const newPass = document.getElementById("auth-newpass").value.trim();
-            const confirmPass = document.getElementById("auth-confirmpass").value.trim();
-            const errorDiv = document.getElementById("auth-error");
+        function resetUserForm() {
+            document.getElementById("edit-username-key").value = "";
+            document.getElementById("manage-user").value = "";
+            document.getElementById("manage-pass").value = "";
+            document.getElementById("manage-role").value = "user";
+            document.getElementById("user-form-title").innerText = "Adicionar Novo Usuário";
+            document.getElementById("manage-user").readOnly = false;
+        }
 
-            if (newPass !== confirmPass) {
-                errorDiv.classList.remove("hidden");
-                return;
+        function renderUsersTable() {
+            const tbody = document.getElementById("users-table-body");
+            tbody.innerHTML = "";
+            const usersObj = config.users || { "admin": { pass: "1234", role: "admin" } };
+
+            for (let username in usersObj) {
+                const uData = usersObj[username];
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-50";
+                tr.innerHTML = `
+                    <td class="py-2.5 px-3 font-medium text-slate-800">${username}</td>
+                    <td class="py-2.5 px-3 text-slate-600 font-mono">${uData.pass}</td>
+                    <td class="py-2.5 px-3"><span class="px-2 py-0.5 text-xs font-semibold rounded-full ${uData.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}">${uData.role}</span></td>
+                    <td class="py-2.5 px-3 text-center">
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="editUser('${username}', '${uData.pass}', '${uData.role}')" class="p-1 text-blue-600 hover:bg-blue-50 rounded cursor-pointer" title="Editar"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                            ${username !== 'admin' ? `<button onclick="deleteUser('${username}')" class="p-1 text-red-600 hover:bg-red-50 rounded cursor-pointer" title="Excluir"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
             }
-            errorDiv.classList.add("hidden");
+            lucide.createIcons();
+        }
 
-            closeModal("modal-auth");
+        function editUser(username, pass, role) {
+            document.getElementById("edit-username-key").value = username;
+            document.getElementById("manage-user").value = username;
+            document.getElementById("manage-user").readOnly = true;
+            document.getElementById("manage-pass").value = pass;
+            document.getElementById("manage-role").value = role;
+            document.getElementById("user-form-title").innerText = `Editando Usuário: ${username}`;
+        }
 
-            config.adminUser = newUsername;
-            config.adminPass = newPass;
+        async function saveUserAccount(e) {
+            e.preventDefault();
+            const originalKey = document.getElementById("edit-username-key").value.trim();
+            const username = document.getElementById("manage-user").value.trim().toLowerCase();
+            const pass = document.getElementById("manage-pass").value.trim();
+            const role = document.getElementById("manage-role").value;
+
+            if (!config.users) config.users = {};
+
+            if (originalKey && originalKey !== username) {
+                delete config.users[originalKey];
+            }
+
+            config.users[username] = { pass, role };
 
             try {
                 await db.collection("configuracoes").doc("geral").set(config, { merge: true });
-                alert("Usuário e senha alterados com sucesso na nuvem!");
+                alert("Usuário salvo com sucesso!");
+                resetUserForm();
+                renderUsersTable();
             } catch (err) {
-                console.error("Erro ao salvar credenciais:", err);
+                console.error("Erro ao salvar usuário:", err);
                 alert("Erro ao salvar no Firebase.");
+            }
+        }
+
+        async function deleteUser(username) {
+            if (username === 'admin') {
+                alert("O usuário administrador principal não pode ser excluído.");
+                return;
+            }
+            if (confirm(`Tem certeza que deseja excluir o usuário '${username}'?`)) {
+                delete config.users[username];
+                try {
+                    await db.collection("configuracoes").doc("geral").set(config, { merge: true });
+                    renderUsersTable();
+                } catch (err) {
+                    console.error("Erro ao excluir usuário:", err);
+                }
             }
         }
 
@@ -517,11 +631,16 @@
         }
 
         function updateUI() {
-            document.title = config.title;
-            document.getElementById("public-header-title").innerText = config.title;
-            document.getElementById("public-main-title").innerText = config.title;
-            document.getElementById("login-app-name").innerText = config.title;
-            document.getElementById("app-header-title").innerText = config.title;
+            const navTitle = config.navTitle || "Vaquinha Digital";
+            const mainTitle = config.title || "Compra da Geladeira";
+            const subtitle = config.subtitle || "Fazer o bem sem olhar a quem";
+
+            document.title = mainTitle;
+            document.getElementById("public-header-title").innerText = navTitle;
+            document.getElementById("public-main-title").innerText = mainTitle;
+            document.getElementById("public-subtitle").innerText = subtitle;
+            document.getElementById("login-app-name").innerText = navTitle;
+            document.getElementById("app-header-title").innerText = navTitle;
 
             const pixContainer = document.getElementById("public-pix-container");
             const pixKeySpan = document.getElementById("public-pix-key");
@@ -582,23 +701,59 @@
 
         function handleLogin(e) {
             e.preventDefault();
-            const uInput = document.getElementById("login-user").value.trim();
+            const uInput = document.getElementById("login-user").value.trim().toLowerCase();
             const pInput = document.getElementById("login-pass").value.trim();
 
-            const correctUser = config.adminUser || "admin";
-            const correctPass = config.adminPass || "1234";
+            const usersObj = config.users || { 
+                "admin": { pass: "1234", role: "admin" },
+                "teste": { pass: "teste", role: "user" }
+            };
 
-            if (uInput === correctUser && pInput === correctPass) {
-                document.getElementById("login-error").classList.add("hidden");
-                document.getElementById("login-screen").classList.add("hidden");
-                document.getElementById("app-screen").classList.remove("hidden");
-                renderTable();
+            if (usersObj[uInput] && usersObj[uInput].pass === pInput) {
+                currentUser = {
+                    username: uInput,
+                    role: usersObj[uInput].role
+                };
             } else {
                 document.getElementById("login-error").classList.remove("hidden");
+                return;
+            }
+
+            document.getElementById("login-error").classList.add("hidden");
+            document.getElementById("login-screen").classList.add("hidden");
+            document.getElementById("app-screen").classList.remove("hidden");
+
+            applyPermissions();
+            renderTable();
+        }
+
+        function applyPermissions() {
+            const roleBadge = document.getElementById("user-role-badge");
+            const btnAuth = document.getElementById("btn-auth-menu");
+            const btnFb = document.getElementById("btn-fb-menu");
+            const btnSettings = document.getElementById("btn-settings-menu");
+            const btnImport = document.getElementById("btn-import-excel");
+            const btnExport = document.getElementById("btn-export-excel");
+
+            if (currentUser && currentUser.role === 'admin') {
+                roleBadge.innerText = `Conectado como Administrador (${currentUser.username})`;
+                if(btnAuth) btnAuth.classList.remove("hidden");
+                if(btnFb) btnFb.classList.remove("hidden");
+                if(btnSettings) btnSettings.classList.remove("hidden");
+                if(btnImport) btnImport.classList.remove("hidden");
+                if(btnExport) btnExport.classList.remove("hidden");
+            } else {
+                roleBadge.innerText = `Conectado como Colaborador (${currentUser ? currentUser.username : 'user'})`;
+                if(btnAuth) btnAuth.classList.add("hidden");
+                if(btnFb) btnFb.classList.add("hidden");
+                if(btnSettings) btnSettings.classList.add("hidden");
+                if(btnImport) btnImport.classList.add("hidden");
+                if(btnExport) btnExport.classList.add("hidden");
             }
         }
 
         function handleLogout() {
+            currentUser = null;
             showPublicScreen();
             document.getElementById("login-form").reset();
         }
@@ -606,22 +761,39 @@
         function renderTable(filteredData = null) {
             const dataToRender = filteredData || contributions;
             const tbody = document.getElementById("contributions-table-body");
+            const thActions = document.getElementById("th-actions");
             tbody.innerHTML = "";
+
+            const isAdmin = currentUser && currentUser.role === 'admin';
+
+            if (!isAdmin) {
+                if(thActions) thActions.classList.add("hidden");
+            } else {
+                if(thActions) thActions.classList.remove("hidden");
+            }
 
             dataToRender.forEach((item, index) => {
                 const tr = document.createElement("tr");
                 tr.className = "hover:bg-slate-50 transition";
+                
+                let actionsHtml = "";
+                if (isAdmin) {
+                    actionsHtml = `
+                        <td class="py-3 px-4 text-center">
+                            <div class="flex items-center justify-center gap-1">
+                                <button onclick="openEditModal('${item.id}', '${item.name}', ${item.value})" class="p-1 text-blue-600 hover:bg-blue-50 rounded transition cursor-pointer" title="Editar"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                                <button onclick="deleteContribution('${item.id}')" class="p-1 text-red-600 hover:bg-red-50 rounded transition cursor-pointer" title="Excluir"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>
+                        </td>
+                    `;
+                }
+
                 tr.innerHTML = `
                     <td class="py-3 px-4 text-center text-slate-400 font-medium">${index + 1}</td>
                     <td class="py-3 px-4 font-medium text-slate-800">${item.name}</td>
                     <td class="py-3 px-4 text-right font-semibold text-slate-700">R$ ${formatFloatToCurrency(item.value)}</td>
                     <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-600">👤 ${item.addedBy || 'admin'}</span></td>
-                    <td class="py-3 px-4 text-center">
-                        <div class="flex items-center justify-center gap-1">
-                            <button onclick="openEditModal('${item.id}', '${item.name}', ${item.value})" class="p-1 text-blue-600 hover:bg-blue-50 rounded transition cursor-pointer"><i data-lucide="pencil" class="w-4 h-4"></i></button>
-                            <button onclick="deleteContribution('${item.id}')" class="p-1 text-red-600 hover:bg-red-50 rounded transition cursor-pointer"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        </div>
-                    </td>
+                    ${actionsHtml}
                 `;
                 tbody.appendChild(tr);
             });
@@ -635,6 +807,7 @@
         }
 
         function importExcelToFirebase(e) {
+            if (!currentUser || currentUser.role !== 'admin') return;
             const file = e.target.files[0];
             if (!file) return;
 
@@ -666,7 +839,7 @@
                             await db.collection("contribuicoes").add({
                                 name: name.toString().trim(),
                                 value: value,
-                                addedBy: "excel-import"
+                                addedBy: currentUser.username
                             });
                             count++;
                         }
@@ -676,14 +849,17 @@
                     e.target.value = "";
                 } catch (err) {
                     console.error("Erro ao importar Excel:", err);
-                    alert("Erro ao ler o arquivo Excel. Verifique se o formato está correto.");
+                    alert("Erro ao ler o arquivo Excel.");
                 }
             };
             reader.readAsArrayBuffer(file);
         }
 
         function openSettingsModal() {
-            document.getElementById("setting-title").value = config.title;
+            if (!currentUser || currentUser.role !== 'admin') return;
+            document.getElementById("setting-nav-title").value = config.navTitle || "Vaquinha Digital";
+            document.getElementById("setting-title").value = config.title || "Compra da Geladeira";
+            document.getElementById("setting-subtitle").value = config.subtitle || "Fazer o bem sem olhar a quem";
             document.getElementById("setting-meta").value = formatFloatToCurrency(config.goal);
             document.getElementById("setting-pix-receiver").value = config.pixReceiver || "";
             document.getElementById("setting-pix").value = config.pixKey || "";
@@ -694,7 +870,9 @@
             e.preventDefault();
             closeModal("modal-settings");
 
+            config.navTitle = document.getElementById("setting-nav-title").value.trim();
             config.title = document.getElementById("setting-title").value.trim();
+            config.subtitle = document.getElementById("setting-subtitle").value.trim();
             config.goal = parseCurrencyToFloat(document.getElementById("setting-meta").value);
             config.pixReceiver = document.getElementById("setting-pix-receiver").value.trim();
             config.pixKey = document.getElementById("setting-pix").value.trim();
@@ -716,6 +894,7 @@
         }
 
         function openEditModal(id, name, value) {
+            if (!currentUser || currentUser.role !== 'admin') return;
             document.getElementById("modal-title").innerText = "Editar Contribuição";
             document.getElementById("edit-id").value = id;
             document.getElementById("contrib-name").value = name;
@@ -731,20 +910,22 @@
 
             closeModal('modal-contribution');
 
-            if (id) {
+            if (id && currentUser && currentUser.role === 'admin') {
                 await db.collection("contribuicoes").doc(id).update({ name, value });
             } else {
-                await db.collection("contribuicoes").add({ name, value, addedBy: "admin" });
+                await db.collection("contribuicoes").add({ name, value, addedBy: currentUser ? currentUser.username : 'user' });
             }
         }
 
         async function deleteContribution(id) {
+            if (!currentUser || currentUser.role !== 'admin') return;
             if (confirm("Tem certeza que deseja excluir esta contribuição?")) {
                 await db.collection("contribuicoes").doc(id).delete();
             }
         }
 
         function exportExcel() {
+            if (!currentUser || currentUser.role !== 'admin') return;
             const exportData = contributions.map((item, idx) => ({
                 "Item": idx + 1,
                 "Nome do Contribuinte": item.name,
