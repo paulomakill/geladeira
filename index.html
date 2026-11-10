@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- SheetJS (XLSX Import/Export) -->
+    <!-- SheetJS (XLSX Export) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <!-- Firebase SDKs -->
@@ -164,6 +164,9 @@
                     <button onclick="showPublicScreen()" class="px-3 py-1.5 bg-blue-800 hover:bg-blue-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5 cursor-pointer">
                         <i data-lucide="eye" class="w-4 h-4"></i> Ver Tela Pública
                     </button>
+                    <button onclick="openAuthModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="key-round" class="w-4 h-4"></i> Alterar Senha / Acesso
+                    </button>
                     <button onclick="openFirebaseConfigModal()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5 cursor-pointer">
                         <i data-lucide="database" class="w-4 h-4"></i> Configurar Firebase
                     </button>
@@ -221,7 +224,6 @@
                 </div>
 
                 <div class="flex items-center gap-2 flex-wrap">
-                    <!-- BOTÃO DE IMPORTAR EXCEL -->
                     <label class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-lg shadow-sm transition flex items-center gap-2 cursor-pointer">
                         <i data-lucide="upload" class="w-4 h-4"></i> Importar Excel (.xlsx)
                         <input type="file" id="excel-file-input" accept=".xlsx, .xls" class="hidden" onchange="importExcelToFirebase(event)">
@@ -254,6 +256,36 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- MODAL: ALTERAR SENHA E ACESSO -->
+    <div id="modal-auth" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-slate-800 text-lg">Alterar Dados de Acesso (Login)</h3>
+                <button onclick="closeModal('modal-auth')" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <form onsubmit="saveAuthCredentials(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Novo Nome de Usuário</label>
+                    <input type="text" id="auth-username" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Ex: admin">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Nova Senha</label>
+                    <input type="password" id="auth-newpass" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Digite a nova senha">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Confirmar Nova Senha</label>
+                    <input type="password" id="auth-confirmpass" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Repita a nova senha">
+                </div>
+                <div id="auth-error" class="text-red-500 text-xs hidden font-medium">As senhas não coincidem!</div>
+                <div class="flex justify-end gap-2 pt-2 border-t">
+                    <button type="button" onclick="closeModal('modal-auth')" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg cursor-pointer">Salvar Credenciais</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- MODAL: CONFIGURAR FIREBASE -->
@@ -379,7 +411,9 @@
             title: "Compra da Geladeira",
             goal: 1500.00,
             pixReceiver: "Dona Fátima / Lúcia",
-            pixKey: "(75) 99999-9999"
+            pixKey: "(75) 99999-9999",
+            adminUser: "admin",
+            adminPass: "1234"
         };
 
         lucide.createIcons();
@@ -395,7 +429,8 @@
 
         db.collection("configuracoes").doc("geral").onSnapshot((doc) => {
             if (doc.exists) {
-                config = doc.data();
+                const data = doc.data();
+                config = { ...config, ...data };
                 updateUI();
             }
         });
@@ -425,6 +460,42 @@
             closeModal("modal-firebase");
             alert("Credenciais salvas com sucesso! A página será recarregada.");
             location.reload();
+        }
+
+        // Funções da aba de Alteração de Senha / Usuário
+        function openAuthModal() {
+            document.getElementById("auth-username").value = config.adminUser || "admin";
+            document.getElementById("auth-newpass").value = "";
+            document.getElementById("auth-confirmpass").value = "";
+            document.getElementById("auth-error").classList.add("hidden");
+            document.getElementById("modal-auth").classList.remove("hidden");
+        }
+
+        async function saveAuthCredentials(e) {
+            e.preventDefault();
+            const newUsername = document.getElementById("auth-username").value.trim();
+            const newPass = document.getElementById("auth-newpass").value.trim();
+            const confirmPass = document.getElementById("auth-confirmpass").value.trim();
+            const errorDiv = document.getElementById("auth-error");
+
+            if (newPass !== confirmPass) {
+                errorDiv.classList.remove("hidden");
+                return;
+            }
+            errorDiv.classList.add("hidden");
+
+            closeModal("modal-auth");
+
+            config.adminUser = newUsername;
+            config.adminPass = newPass;
+
+            try {
+                await db.collection("configuracoes").doc("geral").set(config, { merge: true });
+                alert("Usuário e senha alterados com sucesso na nuvem!");
+            } catch (err) {
+                console.error("Erro ao salvar credenciais:", err);
+                alert("Erro ao salvar no Firebase.");
+            }
         }
 
         function formatCurrencyInput(input) {
@@ -514,7 +585,10 @@
             const uInput = document.getElementById("login-user").value.trim();
             const pInput = document.getElementById("login-pass").value.trim();
 
-            if (uInput === "admin" && pInput === "1234") {
+            const correctUser = config.adminUser || "admin";
+            const correctPass = config.adminPass || "1234";
+
+            if (uInput === correctUser && pInput === correctPass) {
                 document.getElementById("login-error").classList.add("hidden");
                 document.getElementById("login-screen").classList.add("hidden");
                 document.getElementById("app-screen").classList.remove("hidden");
@@ -560,7 +634,6 @@
             renderTable(filtered);
         }
 
-        // Função para importar o arquivo Excel diretamente para o Firebase
         function importExcelToFirebase(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -585,7 +658,6 @@
 
                     let count = 0;
                     for (let row of rows) {
-                        // Tenta extrair o nome e o valor independentemente do nome exato da coluna no Excel
                         const name = row["Nome do Contribuinte"] || row["Nome"] || row["Contribuinte"] || Object.values(row)[1];
                         const valRaw = row["Valor (R$)"] || row["Valor"] || Object.values(row)[2];
                         const value = parseCurrencyToFloat(valRaw);
@@ -601,7 +673,7 @@
                     }
 
                     alert(`Importação concluída! ${count} doações foram adicionadas ao Firebase com sucesso.`);
-                    e.target.value = ""; // Limpa o input do arquivo
+                    e.target.value = "";
                 } catch (err) {
                     console.error("Erro ao importar Excel:", err);
                     alert("Erro ao ler o arquivo Excel. Verifique se o formato está correto.");
@@ -630,7 +702,7 @@
             updateUI();
 
             try {
-                await db.collection("configuracoes").doc("geral").set(config);
+                await db.collection("configuracoes").doc("geral").set(config, { merge: true });
             } catch (err) {
                 console.error("Erro ao salvar dados no Firestore:", err);
             }
