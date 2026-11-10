@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Campanha de Arrecadação</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- SheetJS (XLSX Import/Export) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800">
+
+    <!-- PUBLIC LANDING PAGE -->
+    <div id="public-screen" class="min-h-screen flex flex-col justify-between bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900 text-white">
+        <header class="max-w-6xl w-full mx-auto p-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-blue-800/80 rounded-xl border border-white/10">
+                    <i data-lucide="heart-handshake" class="w-6 h-6 text-blue-300"></i>
+                </div>
+                <h1 id="public-header-title" class="text-xl font-bold tracking-tight">Compra da Geladeira</h1>
+            </div>
+            <button onclick="showLoginScreen()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm rounded-lg shadow-lg transition flex items-center gap-2 border border-blue-400/30 cursor-pointer">
+                <i data-lucide="log-in" class="w-4 h-4"></i> Área Restrita (Login)
+            </button>
+        </header>
+
+        <main class="max-w-4xl w-full mx-auto px-4 py-8 flex-1 flex flex-col justify-center space-y-8">
+            <div class="text-center space-y-3">
+                <span class="px-3 py-1 bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs font-semibold uppercase tracking-wider rounded-full">Painel Público de Transparência</span>
+                <h2 id="public-main-title" class="text-3xl sm:text-4xl font-extrabold text-white">Compra da Geladeira</h2>
+                <p class="text-slate-300 max-w-lg mx-auto text-sm sm:text-base">Fazer o bem sem olhar a quem</p>
+            </div>
+
+            <!-- Progress Card -->
+            <div class="bg-white/15 backdrop-blur-md p-6 sm:p-8 rounded-3xl border border-white/20 shadow-2xl space-y-6">
+                <div>
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="text-sm font-medium text-slate-200">Progresso da Meta</span>
+                        <span id="public-progress-percent" class="text-xl font-bold text-emerald-400">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-900/80 rounded-full h-4 p-0.5 border border-white/10 overflow-hidden">
+                        <div id="public-progress-bar" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-full rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-white/10 flex items-center gap-4">
+                        <div class="p-3 bg-amber-500/20 text-amber-400 rounded-xl"><i data-lucide="target" class="w-6 h-6"></i></div>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Meta</p>
+                            <h3 id="public-meta-val" class="text-xl font-bold text-white">R$ 1.500,00</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-white/10 flex items-center gap-4">
+                        <div class="p-3 bg-emerald-500/20 text-emerald-400 rounded-xl"><i data-lucide="dollar-sign" class="w-6 h-6"></i></div>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Recebido</p>
+                            <h3 id="public-total-val" class="text-xl font-bold text-emerald-400">R$ 0,00</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-white/10 flex items-center gap-4">
+                        <div class="p-3 bg-blue-500/20 text-blue-400 rounded-xl"><i data-lucide="users" class="w-6 h-6"></i></div>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Contribuintes</p>
+                            <h3 id="public-count-val" class="text-xl font-bold text-white">0 pessoas</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PIX CARD -->
+            <div id="public-pix-container" class="bg-gradient-to-r from-emerald-900/40 to-teal-900/40 backdrop-blur-md p-6 rounded-3xl border border-emerald-500/30 text-center space-y-3 hidden">
+                <div class="inline-flex p-3 bg-emerald-500/20 text-emerald-400 rounded-2xl mb-1"><i data-lucide="qr-code" class="w-7 h-7"></i></div>
+                <h3 class="text-lg font-bold text-emerald-300">Contribua via PIX</h3>
+                <p class="text-xs text-slate-300">Utilize os dados abaixo para realizar sua doação diretamente:</p>
+                
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-emerald-500/30 max-w-md mx-auto text-left space-y-2">
+                    <div id="public-pix-receiver-box" class="border-b border-white/10 pb-2 hidden">
+                        <span class="text-xs text-slate-400 block font-semibold uppercase tracking-wider">Recebedor / Favorecido</span>
+                        <span id="public-pix-receiver" class="font-medium text-white text-sm"></span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-400 block font-semibold uppercase tracking-wider">Chave PIX</span>
+                        <div class="flex items-center justify-between gap-2 mt-1">
+                            <span id="public-pix-key" class="font-mono font-semibold text-emerald-400 text-sm select-all break-all"></span>
+                            <button onclick="copyPixKey()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-lg transition flex items-center gap-1 shadow-md flex-shrink-0 cursor-pointer">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <p id="public-pix-msg" class="text-xs text-emerald-400 hidden font-medium">Chave PIX copiada com sucesso!</p>
+            </div>
+
+            <div class="text-center bg-slate-900/40 p-4 rounded-2xl border border-white/5 text-xs text-slate-400 max-w-xl mx-auto flex items-center justify-center gap-2">
+                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+                <span>Por motivos de privacidade, a lista nominal de doadores e o painel de gestão são restritos.</span>
+            </div>
+        </main>
+
+        <footer class="text-center py-4 text-xs text-slate-500 border-t border-white/5">Sistema de Vaquinha Transparente</footer>
+    </div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="hidden min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900">
+        <div class="bg-white/95 backdrop-blur-md p-8 rounded-2xl shadow-2xl max-w-md w-full border border-white/20">
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="showPublicScreen()" class="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 cursor-pointer">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar
+                </button>
+                <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">Área de Login</span>
+            </div>
+
+            <div class="text-center mb-6">
+                <div class="inline-flex p-4 rounded-full bg-blue-100 text-blue-600 mb-3"><i data-lucide="lock" class="w-8 h-8"></i></div>
+                <h1 id="login-app-name" class="text-2xl font-bold text-slate-800">Compra da Geladeira</h1>
+                <p class="text-sm text-slate-500 mt-1">Acesso Restrito para Gestão</p>
+            </div>
+
+            <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Usuário</label>
+                    <input type="text" id="login-user" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="admin">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Senha</label>
+                    <input type="password" id="login-pass" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="1234">
+                </div>
+                <div id="login-error" class="text-red-500 text-xs text-center hidden font-medium">Usuário ou senha incorretos!</div>
+                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
+                    <i data-lucide="log-in" class="w-4 h-4"></i> Entrar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP SCREEN (LOGADO) -->
+    <div id="app-screen" class="hidden min-h-screen pb-12">
+        <header class="bg-blue-900 text-white shadow-lg sticky top-0 z-30">
+            <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-blue-800 rounded-lg"><i data-lucide="heart-handshake" class="w-6 h-6 text-blue-200"></i></div>
+                    <div>
+                        <h1 id="app-header-title" class="font-bold text-lg leading-tight">Compra da Geladeira</h1>
+                        <p class="text-xs text-blue-200" id="user-role-badge">Conectado como Admin</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button onclick="showPublicScreen()" class="px-3 py-1.5 bg-blue-800 hover:bg-blue-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="eye" class="w-4 h-4"></i> Ver Tela Pública
+                    </button>
+                    <button onclick="openFirebaseConfigModal()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="database" class="w-4 h-4"></i> Configurar Firebase
+                    </button>
+                    <button onclick="openSettingsModal()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="settings" class="w-4 h-4"></i> Configurações / PIX
+                    </button>
+                    <button onclick="handleLogout()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="log-out" class="w-4 h-4"></i> Sair
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-6xl mx-auto px-4 pt-6 space-y-6">
+            <!-- METRIC CARDS -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Meta Estipulada</p>
+                        <h3 class="text-xl font-bold text-slate-800 mt-1" id="metric-meta">R$ 1.500,00</h3>
+                    </div>
+                    <div class="p-3 bg-amber-50 text-amber-600 rounded-xl"><i data-lucide="target" class="w-6 h-6"></i></div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Arrecadado</p>
+                        <h3 class="text-xl font-bold text-emerald-600 mt-1" id="metric-total">R$ 0,00</h3>
+                    </div>
+                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><i data-lucide="dollar-sign" class="w-6 h-6"></i></div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Contribuintes</p>
+                        <h3 class="text-xl font-bold text-slate-800 mt-1" id="metric-count">0</h3>
+                    </div>
+                    <div class="p-3 bg-blue-50 text-blue-600 rounded-xl"><i data-lucide="users" class="w-6 h-6"></i></div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Média por Pessoa</p>
+                        <h3 class="text-xl font-bold text-slate-800 mt-1" id="metric-avg">R$ 0,00</h3>
+                    </div>
+                    <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl"><i data-lucide="calculator" class="w-6 h-6"></i></div>
+                </div>
+            </div>
+
+            <!-- ACTION BAR -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+                <div class="relative flex-1 min-w-[240px]">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" id="search-input" oninput="filterData()" placeholder="Buscar por nome..." class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+
+                <div class="flex items-center gap-2 flex-wrap">
+                    <!-- BOTÃO DE IMPORTAR EXCEL -->
+                    <label class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-lg shadow-sm transition flex items-center gap-2 cursor-pointer">
+                        <i data-lucide="upload" class="w-4 h-4"></i> Importar Excel (.xlsx)
+                        <input type="file" id="excel-file-input" accept=".xlsx, .xls" class="hidden" onchange="importExcelToFirebase(event)">
+                    </label>
+
+                    <button onclick="exportExcel()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg shadow-sm transition flex items-center gap-2 cursor-pointer">
+                        <i data-lucide="download" class="w-4 h-4"></i> Baixar Relatório Excel
+                    </button>
+                    <button onclick="openAddModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-sm transition flex items-center gap-2 cursor-pointer">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Adicionar Contribuição
+                    </button>
+                </div>
+            </div>
+
+            <!-- DATA TABLE -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                <th class="py-3 px-4 w-16 text-center">Nº</th>
+                                <th class="py-3 px-4">Nome do Contribuinte</th>
+                                <th class="py-3 px-4 text-right">Valor (R$)</th>
+                                <th class="py-3 px-4 text-center">Cadastrado por</th>
+                                <th class="py-3 px-4 w-28 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contributions-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: CONFIGURAR FIREBASE -->
+    <div id="modal-firebase" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-slate-800 text-lg">Configurar Chaves do Firebase</h3>
+                <button onclick="closeModal('modal-firebase')" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <form onsubmit="saveFirebaseConfig(event)" class="space-y-3">
+                <p class="text-xs text-slate-500">Altere ou visualize abaixo as credenciais fornecidas pelo Firebase:</p>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">API Key</label>
+                    <input type="text" id="fb-apikey" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Auth Domain</label>
+                    <input type="text" id="fb-authdomain" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Project ID</label>
+                    <input type="text" id="fb-projectid" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Storage Bucket</label>
+                    <input type="text" id="fb-storagebucket" class="w-full px-3 py-2 border rounded-lg text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Messaging Sender ID</label>
+                    <input type="text" id="fb-messagingsenderid" class="w-full px-3 py-2 border rounded-lg text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">App ID</label>
+                    <input type="text" id="fb-appid" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none">
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t">
+                    <button type="button" onclick="closeModal('modal-firebase')" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg cursor-pointer">Salvar e Reconectar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: CONFIGURAÇÕES DA CAMPANHA -->
+    <div id="modal-settings" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-slate-800 text-lg">Configurações e Dados do PIX</h3>
+                <button onclick="closeModal('modal-settings')" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <form id="form-settings" onsubmit="saveCampaignSettings(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Nome da Campanha</label>
+                    <input type="text" id="setting-title" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Meta Desejada (R$)</label>
+                    <input type="text" id="setting-meta" required oninput="formatCurrencyInput(this)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Nome do Recebedor PIX</label>
+                    <input type="text" id="setting-pix-receiver" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Chave PIX</label>
+                    <input type="text" id="setting-pix" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none">
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t">
+                    <button type="button" onclick="closeModal('modal-settings')" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg cursor-pointer">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT CONTRIBUTION -->
+    <div id="modal-contribution" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 id="modal-title" class="font-bold text-slate-800 text-lg">Nova Contribuição</h3>
+                <button onclick="closeModal('modal-contribution')" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <form id="form-contribution" onsubmit="saveContribution(event)" class="space-y-4">
+                <input type="hidden" id="edit-id">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Nome do Contribuinte</label>
+                    <input type="text" id="contrib-name" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Ex: Maria José">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Valor (R$)</label>
+                    <input type="text" id="contrib-value" required oninput="formatCurrencyInput(this)" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm outline-none" placeholder="Ex: 50,00">
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t">
+                    <button type="button" onclick="closeModal('modal-contribution')" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg cursor-pointer">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg cursor-pointer">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE CONEXÃO COM O FIREBASE -->
+    <script>
+        const defaultFirebaseConfig = {
+            apiKey: "AIzaSyANKFZN5nJc3LQpvZIuM1fDBRrVNbjJtn4",
+            authDomain: "geladeira-dd2ec.firebaseapp.com",
+            projectId: "geladeira-dd2ec",
+            storageBucket: "geladeira-dd2ec.firebasestorage.app",
+            messagingSenderId: "484659028265",
+            appId: "1:484659028265:web:6c2bc37fa726f960d7d738"
+        };
+
+        const savedFbConfig = localStorage.getItem("fatima_firebase_config");
+        const activeFbConfig = savedFbConfig ? JSON.parse(savedFbConfig) : defaultFirebaseConfig;
+
+        firebase.initializeApp(activeFbConfig);
+        const db = firebase.firestore();
+
+        let contributions = [];
+        let config = {
+            title: "Compra da Geladeira",
+            goal: 1500.00,
+            pixReceiver: "Dona Fátima / Lúcia",
+            pixKey: "(75) 99999-9999"
+        };
+
+        lucide.createIcons();
+
+        db.collection("contribuicoes").onSnapshot((snapshot) => {
+            contributions = [];
+            snapshot.forEach((doc) => {
+                contributions.push({ id: doc.id, ...doc.data() });
+            });
+            updateUI();
+            renderTable();
+        });
+
+        db.collection("configuracoes").doc("geral").onSnapshot((doc) => {
+            if (doc.exists) {
+                config = doc.data();
+                updateUI();
+            }
+        });
+
+        function openFirebaseConfigModal() {
+            document.getElementById("fb-apikey").value = activeFbConfig.apiKey || "";
+            document.getElementById("fb-authdomain").value = activeFbConfig.authDomain || "";
+            document.getElementById("fb-projectid").value = activeFbConfig.projectId || "";
+            document.getElementById("fb-storagebucket").value = activeFbConfig.storageBucket || "";
+            document.getElementById("fb-messagingsenderid").value = activeFbConfig.messagingSenderId || "";
+            document.getElementById("fb-appid").value = activeFbConfig.appId || "";
+            document.getElementById("modal-firebase").classList.remove("hidden");
+        }
+
+        function saveFirebaseConfig(e) {
+            e.preventDefault();
+            const newConfig = {
+                apiKey: document.getElementById("fb-apikey").value.trim(),
+                authDomain: document.getElementById("fb-authdomain").value.trim(),
+                projectId: document.getElementById("fb-projectid").value.trim(),
+                storageBucket: document.getElementById("fb-storagebucket").value.trim(),
+                messagingSenderId: document.getElementById("fb-messagingsenderid").value.trim(),
+                appId: document.getElementById("fb-appid").value.trim()
+            };
+
+            localStorage.setItem("fatima_firebase_config", JSON.stringify(newConfig));
+            closeModal("modal-firebase");
+            alert("Credenciais salvas com sucesso! A página será recarregada.");
+            location.reload();
+        }
+
+        function formatCurrencyInput(input) {
+            let value = input.value.replace(/\D/g, "");
+            if (!value) { input.value = ""; return; }
+            let numberVal = parseFloat(value) / 100;
+            input.value = numberVal.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function parseCurrencyToFloat(valStr) {
+            if (typeof valStr === 'number') return valStr;
+            if (!valStr) return 0;
+            let clean = valStr.toString().replace(/\./g, "").replace(",", ".");
+            return parseFloat(clean) || 0;
+        }
+
+        function formatFloatToCurrency(num) {
+            return num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function updateUI() {
+            document.title = config.title;
+            document.getElementById("public-header-title").innerText = config.title;
+            document.getElementById("public-main-title").innerText = config.title;
+            document.getElementById("login-app-name").innerText = config.title;
+            document.getElementById("app-header-title").innerText = config.title;
+
+            const pixContainer = document.getElementById("public-pix-container");
+            const pixKeySpan = document.getElementById("public-pix-key");
+            const pixReceiverBox = document.getElementById("public-pix-receiver-box");
+            const pixReceiverSpan = document.getElementById("public-pix-receiver");
+
+            if (config.pixKey && config.pixKey.trim() !== "") {
+                pixKeySpan.innerText = config.pixKey;
+                if (config.pixReceiver && config.pixReceiver.trim() !== "") {
+                    pixReceiverSpan.innerText = config.pixReceiver;
+                    pixReceiverBox.classList.remove("hidden");
+                } else {
+                    pixReceiverBox.classList.add("hidden");
+                }
+                pixContainer.classList.remove("hidden");
+            } else {
+                pixContainer.classList.add("hidden");
+            }
+
+            const total = contributions.reduce((acc, item) => acc + item.value, 0);
+            const count = contributions.length;
+            const meta = config.goal || 0.01;
+            const percent = Math.min(100, Math.round((total / meta) * 100));
+
+            document.getElementById("public-meta-val").innerText = `R$ ${formatFloatToCurrency(meta)}`;
+            document.getElementById("public-total-val").innerText = `R$ ${formatFloatToCurrency(total)}`;
+            document.getElementById("public-count-val").innerText = `${count} ${count === 1 ? 'pessoa' : 'pessoas'}`;
+            document.getElementById("public-progress-percent").innerText = `${percent}%`;
+            document.getElementById("public-progress-bar").style.width = `${percent}%`;
+
+            document.getElementById("metric-meta").innerText = `R$ ${formatFloatToCurrency(meta)}`;
+            document.getElementById("metric-total").innerText = `R$ ${formatFloatToCurrency(total)}`;
+            document.getElementById("metric-count").innerText = count;
+            const avg = count > 0 ? total / count : 0;
+            document.getElementById("metric-avg").innerText = `R$ ${formatFloatToCurrency(avg)}`;
+        }
+
+        function copyPixKey() {
+            const keyText = document.getElementById("public-pix-key").innerText;
+            navigator.clipboard.writeText(keyText).then(() => {
+                const msg = document.getElementById("public-pix-msg");
+                msg.classList.remove("hidden");
+                setTimeout(() => msg.classList.add("hidden"), 3000);
+            });
+        }
+
+        function showPublicScreen() {
+            document.getElementById("public-screen").classList.remove("hidden");
+            document.getElementById("login-screen").classList.add("hidden");
+            document.getElementById("app-screen").classList.add("hidden");
+        }
+
+        function showLoginScreen() {
+            document.getElementById("public-screen").classList.add("hidden");
+            document.getElementById("login-screen").classList.remove("hidden");
+            document.getElementById("app-screen").classList.add("hidden");
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const uInput = document.getElementById("login-user").value.trim();
+            const pInput = document.getElementById("login-pass").value.trim();
+
+            if (uInput === "admin" && pInput === "1234") {
+                document.getElementById("login-error").classList.add("hidden");
+                document.getElementById("login-screen").classList.add("hidden");
+                document.getElementById("app-screen").classList.remove("hidden");
+                renderTable();
+            } else {
+                document.getElementById("login-error").classList.remove("hidden");
+            }
+        }
+
+        function handleLogout() {
+            showPublicScreen();
+            document.getElementById("login-form").reset();
+        }
+
+        function renderTable(filteredData = null) {
+            const dataToRender = filteredData || contributions;
+            const tbody = document.getElementById("contributions-table-body");
+            tbody.innerHTML = "";
+
+            dataToRender.forEach((item, index) => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 text-center text-slate-400 font-medium">${index + 1}</td>
+                    <td class="py-3 px-4 font-medium text-slate-800">${item.name}</td>
+                    <td class="py-3 px-4 text-right font-semibold text-slate-700">R$ ${formatFloatToCurrency(item.value)}</td>
+                    <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-600">👤 ${item.addedBy || 'admin'}</span></td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="openEditModal('${item.id}', '${item.name}', ${item.value})" class="p-1 text-blue-600 hover:bg-blue-50 rounded transition cursor-pointer"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                            <button onclick="deleteContribution('${item.id}')" class="p-1 text-red-600 hover:bg-red-50 rounded transition cursor-pointer"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        function filterData() {
+            const query = document.getElementById("search-input").value.toLowerCase();
+            const filtered = contributions.filter(item => item.name.toLowerCase().includes(query));
+            renderTable(filtered);
+        }
+
+        // Função para importar o arquivo Excel diretamente para o Firebase
+        function importExcelToFirebase(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(evt) {
+                try {
+                    const data = new Uint8Array(evt.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const rows = XLSX.utils.sheet_to_json(worksheet);
+
+                    if (rows.length === 0) {
+                        alert("O arquivo Excel está vazio.");
+                        return;
+                    }
+
+                    if (!confirm(`Foram encontrados ${rows.length} registros no arquivo. Deseja importá-los para o Firebase?`)) {
+                        return;
+                    }
+
+                    let count = 0;
+                    for (let row of rows) {
+                        // Tenta extrair o nome e o valor independentemente do nome exato da coluna no Excel
+                        const name = row["Nome do Contribuinte"] || row["Nome"] || row["Contribuinte"] || Object.values(row)[1];
+                        const valRaw = row["Valor (R$)"] || row["Valor"] || Object.values(row)[2];
+                        const value = parseCurrencyToFloat(valRaw);
+
+                        if (name && value > 0) {
+                            await db.collection("contribuicoes").add({
+                                name: name.toString().trim(),
+                                value: value,
+                                addedBy: "excel-import"
+                            });
+                            count++;
+                        }
+                    }
+
+                    alert(`Importação concluída! ${count} doações foram adicionadas ao Firebase com sucesso.`);
+                    e.target.value = ""; // Limpa o input do arquivo
+                } catch (err) {
+                    console.error("Erro ao importar Excel:", err);
+                    alert("Erro ao ler o arquivo Excel. Verifique se o formato está correto.");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function openSettingsModal() {
+            document.getElementById("setting-title").value = config.title;
+            document.getElementById("setting-meta").value = formatFloatToCurrency(config.goal);
+            document.getElementById("setting-pix-receiver").value = config.pixReceiver || "";
+            document.getElementById("setting-pix").value = config.pixKey || "";
+            document.getElementById("modal-settings").classList.remove("hidden");
+        }
+
+        async function saveCampaignSettings(e) {
+            e.preventDefault();
+            closeModal("modal-settings");
+
+            config.title = document.getElementById("setting-title").value.trim();
+            config.goal = parseCurrencyToFloat(document.getElementById("setting-meta").value);
+            config.pixReceiver = document.getElementById("setting-pix-receiver").value.trim();
+            config.pixKey = document.getElementById("setting-pix").value.trim();
+
+            updateUI();
+
+            try {
+                await db.collection("configuracoes").doc("geral").set(config);
+            } catch (err) {
+                console.error("Erro ao salvar dados no Firestore:", err);
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById("modal-title").innerText = "Nova Contribuição";
+            document.getElementById("edit-id").value = "";
+            document.getElementById("form-contribution").reset();
+            document.getElementById("modal-contribution").classList.remove("hidden");
+        }
+
+        function openEditModal(id, name, value) {
+            document.getElementById("modal-title").innerText = "Editar Contribuição";
+            document.getElementById("edit-id").value = id;
+            document.getElementById("contrib-name").value = name;
+            document.getElementById("contrib-value").value = formatFloatToCurrency(value);
+            document.getElementById("modal-contribution").classList.remove("hidden");
+        }
+
+        async function saveContribution(e) {
+            e.preventDefault();
+            const id = document.getElementById("edit-id").value;
+            const name = document.getElementById("contrib-name").value.trim();
+            const value = parseCurrencyToFloat(document.getElementById("contrib-value").value);
+
+            closeModal('modal-contribution');
+
+            if (id) {
+                await db.collection("contribuicoes").doc(id).update({ name, value });
+            } else {
+                await db.collection("contribuicoes").add({ name, value, addedBy: "admin" });
+            }
+        }
+
+        async function deleteContribution(id) {
+            if (confirm("Tem certeza que deseja excluir esta contribuição?")) {
+                await db.collection("contribuicoes").doc(id).delete();
+            }
+        }
+
+        function exportExcel() {
+            const exportData = contributions.map((item, idx) => ({
+                "Item": idx + 1,
+                "Nome do Contribuinte": item.name,
+                "Valor (R$)": item.value,
+                "Cadastrado por": item.addedBy || "admin"
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Contribuições");
+            XLSX.writeFile(wb, "dados_vaquinha.xlsx");
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add("hidden");
+        }
+    </script>
+</body>
+</html>
